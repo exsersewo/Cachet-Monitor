@@ -58,14 +58,13 @@ namespace Cachet_Monitor
                         try
                         {
                             await DoMonitorCheck(Cachet, monitor).ConfigureAwait(false);
-                            Log.Verbose("MainAsync", $"Ran Monitor Check for {monitor.Name}");
                         }
                         catch (Exception ex)
                         {
                             Log.Warning("MainAsync", $"{monitor.Name} failed with {ex.Message}", ex);
                         }
 
-                        Log.Verbose("MainAsync", $"Halting {monitor.Name} check for {monitor.Interval * 1000}ms");
+                        Log.Debug("MainAsync", $"Halting {monitor.Name} check for {monitor.Interval * 1000}ms");
                         await Task.Delay(monitor.Interval * 1000);
                     }
                 }).Start();
@@ -91,7 +90,7 @@ namespace Cachet_Monitor
                                 {
                                     Status = ComponentStatus.Operational,
                                 });
-                                Log.Verbose("PortMonitorCheck", "Sent to Cachet successfully");
+                                Log.Debug("PortMonitorCheck", "Sent to Cachet successfully");
                             }
                             catch (Exception ex)
                             {
@@ -108,7 +107,7 @@ namespace Cachet_Monitor
                                 {
                                     Status = ComponentStatus.MajorOutage,
                                 });
-                                Log.Verbose("PortMonitorCheck", "Sent to Cachet successfully");
+                                Log.Debug("PortMonitorCheck", "Sent to Cachet successfully");
                             }
                             catch(Exception ex2)
                             {
@@ -135,7 +134,7 @@ namespace Cachet_Monitor
                             {
                                 Value = (int)reply.RoundtripTime
                             });
-                            Log.Verbose("IPMonitorCheck", "Sent to Cachet successfully");
+                            Log.Debug("IPMonitorCheck", "Sent to Cachet successfully");
                         }
                         catch (Exception ex)
                         {
@@ -150,7 +149,7 @@ namespace Cachet_Monitor
                                 {
                                     Status = ComponentStatus.Operational,
                                 });
-                                Log.Verbose("IPMonitorCheck", "Sent to Cachet successfully");
+                                Log.Debug("IPMonitorCheck", "Sent to Cachet successfully");
                             }
                             catch (Exception ex)
                             {
@@ -166,7 +165,7 @@ namespace Cachet_Monitor
                                 {
                                     Status = ComponentStatus.PerformanceIssues,
                                 });
-                                Log.Verbose("IPMonitorCheck", "Sent to Cachet successfully");
+                                Log.Debug("IPMonitorCheck", "Sent to Cachet successfully");
                             }
                             catch (Exception ex)
                             {
@@ -184,7 +183,7 @@ namespace Cachet_Monitor
                                     {
                                         Status = ComponentStatus.PartialOutage,
                                     });
-                                    Log.Verbose("IPMonitorCheck", "Sent to Cachet successfully");
+                                    Log.Debug("IPMonitorCheck", "Sent to Cachet successfully");
                                 }
                                 catch (Exception ex)
                                 {
@@ -199,7 +198,7 @@ namespace Cachet_Monitor
                                     {
                                         Status = ComponentStatus.MajorOutage,
                                     });
-                                    Log.Verbose("IPMonitorCheck", "Sent to Cachet successfully");
+                                    Log.Debug("IPMonitorCheck", "Sent to Cachet successfully");
                                 }
                                 catch (Exception ex)
                                 {
@@ -231,7 +230,7 @@ namespace Cachet_Monitor
                                     {
                                         Status = ComponentStatus.Operational,
                                     });
-                                    Log.Verbose("WebMonitorCheck", "Sent to Cachet successfully");
+                                    Log.Debug("WebMonitorCheck", "Sent to Cachet successfully");
                                 }
                                 catch (Exception ex)
                                 {
@@ -246,7 +245,7 @@ namespace Cachet_Monitor
                                     {
                                         Status = ComponentStatus.PartialOutage,
                                     });
-                                    Log.Verbose("WebMonitorCheck", "Sent to Cachet successfully");
+                                    Log.Debug("WebMonitorCheck", "Sent to Cachet successfully");
                                 }
                                 catch (Exception ex)
                                 {
@@ -274,7 +273,7 @@ namespace Cachet_Monitor
                                             {
                                                 Status = ComponentStatus.Operational,
                                             });
-                                            Log.Verbose("WebMonitorCheck", "Sent to Cachet successfully");
+                                            Log.Debug("WebMonitorCheck", "Sent to Cachet successfully");
                                         }
                                         catch (Exception ex2)
                                         {
@@ -293,7 +292,7 @@ namespace Cachet_Monitor
                                         {
                                             Status = ComponentStatus.PerformanceIssues,
                                         });
-                                        Log.Verbose("WebMonitorCheck", "Sent to Cachet successfully");
+                                        Log.Debug("WebMonitorCheck", "Sent to Cachet successfully");
                                     }
                                     catch (Exception ex2)
                                     {
@@ -308,7 +307,7 @@ namespace Cachet_Monitor
                                         {
                                             Status = ComponentStatus.MajorOutage,
                                         });
-                                        Log.Verbose("WebMonitorCheck", "Sent to Cachet successfully");
+                                        Log.Debug("WebMonitorCheck", "Sent to Cachet successfully");
                                     }
                                     catch (Exception ex2)
                                     {
@@ -326,7 +325,7 @@ namespace Cachet_Monitor
                     break;
             }
 
-            Log.Verbose("DoMonitorCheck", $"Ran check on \"{monitor.Name}\" Status: {componentStatus}");
+            Log.Verbose("DoMonitorCheck", $"Ran check on \"{monitor.Name}\" Status: {componentStatus.ToString()}");
         }
     }
 }
