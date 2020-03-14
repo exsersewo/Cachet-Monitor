@@ -39,6 +39,8 @@ namespace Cachet_Monitor
                 }
             }
 
+            Log.Configure(Configuration);
+
             Cachet = new CachetClient(Configuration.ApiBase.OriginalString, Configuration.ApiKey);
 
             MainAsync().GetAwaiter().GetResult();
@@ -53,7 +55,14 @@ namespace Cachet_Monitor
                     Thread.CurrentThread.IsBackground = true;
                     while (true)
                     {
-                        await DoMonitorCheck(Cachet, monitor).ConfigureAwait(false);
+                        try
+                        {
+                            await DoMonitorCheck(Cachet, monitor).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "lastexception.txt"), ex.ToString());
+                        }
 
                         await Task.Delay(monitor.Interval * 1000);
                     }
@@ -70,22 +79,38 @@ namespace Cachet_Monitor
             {
                 case MonitorType.PORT:
                     {
-                        using (TcpClient tcpClient = new TcpClient())
+                        using TcpClient tcpClient = new TcpClient();
+                        try
                         {
+                            tcpClient.Connect(monitor.Target, monitor.Settings.Port);
                             try
                             {
-                                tcpClient.Connect(monitor.Target, monitor.Settings.Port);
                                 await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
                                 {
                                     Status = ComponentStatus.Operational,
                                 });
+                                Log.Verbose("PortMonitorCheck", "Sent to Cachet successfully");
                             }
-                            catch (Exception)
+                            catch (Exception ex)
+                            {
+                                Log.Error("PortMonitorCheck", ex.Message, ex);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error("PortMonitorCheck", ex.Message, ex);
+
+                            try
                             {
                                 await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
                                 {
                                     Status = ComponentStatus.MajorOutage,
                                 });
+                                Log.Verbose("PortMonitorCheck", "Sent to Cachet successfully");
+                            }
+                            catch(Exception ex2)
+                            {
+                                Log.Error("PortMonitorCheck", ex2.Message, ex2);
                             }
                         }
                     }
@@ -102,42 +127,82 @@ namespace Cachet_Monitor
 
                         PingReply reply = ping.Send(monitor.Target, monitor.Timeout, null, options);
 
-                        await Cachet.AddMetricPointAsync(monitor.MetricId, new PostMetricPoint
+                        try
                         {
-                            Value = (int)reply.RoundtripTime
-                        });
+                            await Cachet.AddMetricPointAsync(monitor.MetricId, new PostMetricPoint
+                            {
+                                Value = (int)reply.RoundtripTime
+                            });
+                            Log.Verbose("IPMonitorCheck", "Sent to Cachet successfully");
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error("IPMonitorCheck", ex.Message, ex);
+                        }
 
                         if (reply.Status == IPStatus.Success)
                         {
-                            await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                            try
                             {
-                                Status = ComponentStatus.Operational,
-                            });
+                                await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                {
+                                    Status = ComponentStatus.Operational,
+                                });
+                                Log.Verbose("IPMonitorCheck", "Sent to Cachet successfully");
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error("IPMonitorCheck", ex.Message, ex);
+                            }
                         }
 
                         if (reply.RoundtripTime >= monitor.Timeout)
                         {
-                            await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                            try
                             {
-                                Status = ComponentStatus.PerformanceIssues,
-                            });
+                                await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                {
+                                    Status = ComponentStatus.PerformanceIssues,
+                                });
+                                Log.Verbose("IPMonitorCheck", "Sent to Cachet successfully");
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error("IPMonitorCheck", ex.Message, ex);
+                            }
                         }
 
                         if (reply.Status != IPStatus.Success)
                         {
                             if (reply.Status == IPStatus.TimedOut)
                             {
-                                await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                try
                                 {
-                                    Status = ComponentStatus.PartialOutage,
-                                });
+                                    await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                    {
+                                        Status = ComponentStatus.PartialOutage,
+                                    });
+                                    Log.Verbose("IPMonitorCheck", "Sent to Cachet successfully");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log.Error("IPMonitorCheck", ex.Message, ex);
+                                }
                             }
                             else
                             {
-                                await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                try
                                 {
-                                    Status = ComponentStatus.MajorOutage,
-                                });
+                                    await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                    {
+                                        Status = ComponentStatus.MajorOutage,
+                                    });
+                                    Log.Verbose("IPMonitorCheck", "Sent to Cachet successfully");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log.Error("IPMonitorCheck", ex.Message, ex);
+                                }
                             }
                         }
                     }
@@ -158,17 +223,34 @@ namespace Cachet_Monitor
 
                             if (response.StatusCode == (HttpStatusCode)monitor.Settings.ExpectedStatusCode)
                             {
-                                var x = await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                try
                                 {
-                                    Status = ComponentStatus.Operational,
-                                });
+                                    await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                    {
+                                        Status = ComponentStatus.Operational,
+                                    });
+                                    Log.Verbose("WebMonitorCheck", "Sent to Cachet successfully");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log.Error("WebMonitorCheck", ex.Message, ex);
+                                }
                             }
                             else
                             {
-                                await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                try
                                 {
-                                    Status = ComponentStatus.PartialOutage,
-                                });
+                                    await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                    {
+                                        Status = ComponentStatus.PartialOutage,
+                                    });
+                                    Log.Verbose("WebMonitorCheck", "Sent to Cachet successfully");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log.Error("WebMonitorCheck", ex.Message, ex);
+                                }
+
                             }
 
                             response.Close();
@@ -176,6 +258,7 @@ namespace Cachet_Monitor
                         catch (WebException ex)
                         {
                             timer.Stop();
+                            Log.Warning("WebMonitorChcek", ex.Message, ex);
 
                             if (ex.Status == WebExceptionStatus.ProtocolError)
                             {
@@ -183,10 +266,18 @@ namespace Cachet_Monitor
                                 {
                                     if (response.StatusCode == (HttpStatusCode)monitor.Settings.ExpectedStatusCode)
                                     {
-                                        await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                        try
                                         {
-                                            Status = ComponentStatus.Operational,
-                                        });
+                                            await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                            {
+                                                Status = ComponentStatus.Operational,
+                                            });
+                                            Log.Verbose("WebMonitorCheck", "Sent to Cachet successfully");
+                                        }
+                                        catch (Exception ex2)
+                                        {
+                                            Log.Error("WebMonitorCheck", ex2.Message, ex2);
+                                        }
                                     }
                                 }
                             }
@@ -194,17 +285,33 @@ namespace Cachet_Monitor
                             {
                                 if (ex.Status == WebExceptionStatus.Timeout)
                                 {
-                                    await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                    try
                                     {
-                                        Status = ComponentStatus.PerformanceIssues,
-                                    });
+                                        await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                        {
+                                            Status = ComponentStatus.PerformanceIssues,
+                                        });
+                                        Log.Verbose("WebMonitorCheck", "Sent to Cachet successfully");
+                                    }
+                                    catch (Exception ex2)
+                                    {
+                                        Log.Error("WebMonitorCheck", ex2.Message, ex2);
+                                    }
                                 }
                                 else
                                 {
-                                    await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                    try
                                     {
-                                        Status = ComponentStatus.MajorOutage,
-                                    });
+                                        await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
+                                        {
+                                            Status = ComponentStatus.MajorOutage,
+                                        });
+                                        Log.Verbose("WebMonitorCheck", "Sent to Cachet successfully");
+                                    }
+                                    catch (Exception ex2)
+                                    {
+                                        Log.Error("WebMonitorCheck", ex2.Message, ex2);
+                                    }
                                 }
                             }
                         }
@@ -217,7 +324,7 @@ namespace Cachet_Monitor
                     break;
             }
 
-            Console.WriteLine($"Ran check on \"{monitor.Target}\" Status: {componentStatus}");
+            Log.Verbose("DoMonitorCheck", $"Ran check on \"{monitor.Name}\" Status: {componentStatus}");
         }
     }
 }

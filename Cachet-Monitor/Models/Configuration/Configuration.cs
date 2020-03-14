@@ -8,6 +8,8 @@ namespace Cachet_Monitor.Models
     {
         public Uri ApiBase { get; set; }
         public string ApiKey { get; set; }
+        public LogSeverity LogLevel { get; set; }
+        public bool LogToFile { get; set; }
 
         public List<Monitor> Monitors { get; set; }
 
@@ -15,6 +17,8 @@ namespace Cachet_Monitor.Models
         {
             ApiBase = new Uri("https://domain.example.com"),
             ApiKey = "AAABBBCCC11223344556",
+            LogLevel = LogSeverity.Info,
+            LogToFile = true,
             Monitors = new List<Monitor>
             {
                 new Monitor
