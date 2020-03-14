@@ -58,12 +58,14 @@ namespace Cachet_Monitor
                         try
                         {
                             await DoMonitorCheck(Cachet, monitor).ConfigureAwait(false);
+                            Log.Verbose("MainAsync", $"Ran Monitor Check for {monitor.Name}");
                         }
                         catch (Exception ex)
                         {
-                            File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "lastexception.txt"), ex.ToString());
+                            Log.Warning("MainAsync", $"{monitor.Name} failed with {ex.Message}", ex);
                         }
 
+                        Log.Verbose("MainAsync", $"Halting {monitor.Name} check for {monitor.Interval * 1000}ms");
                         await Task.Delay(monitor.Interval * 1000);
                     }
                 }).Start();
