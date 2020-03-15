@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cachet_Monitor.Models.Config
+﻿namespace Cachet_Monitor.Models.Config
 {
     public enum MonitorType
     {

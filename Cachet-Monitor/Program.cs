@@ -12,6 +12,8 @@ using System.Net;
 using System.Diagnostics;
 using CachNet.Entities;
 using System.Net.NetworkInformation;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Cachet_Monitor
 {
@@ -86,9 +88,10 @@ namespace Cachet_Monitor
                             tcpClient.Connect(monitor.Target, monitor.Settings.Port);
                             try
                             {
+                                componentStatus = ComponentStatus.Operational;
                                 await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
                                 {
-                                    Status = ComponentStatus.Operational,
+                                    Status = componentStatus,
                                 });
                                 Log.Debug("PortMonitorCheck", "Sent to Cachet successfully");
                             }
@@ -103,9 +106,10 @@ namespace Cachet_Monitor
 
                             try
                             {
+                                componentStatus = ComponentStatus.MajorOutage;
                                 await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
                                 {
-                                    Status = ComponentStatus.MajorOutage,
+                                    Status = componentStatus,
                                 });
                                 Log.Debug("PortMonitorCheck", "Sent to Cachet successfully");
                             }
@@ -145,9 +149,10 @@ namespace Cachet_Monitor
                         {
                             try
                             {
+                                componentStatus = ComponentStatus.Operational;
                                 await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
                                 {
-                                    Status = ComponentStatus.Operational,
+                                    Status = componentStatus,
                                 });
                                 Log.Debug("IPMonitorCheck", "Sent to Cachet successfully");
                             }
@@ -161,9 +166,10 @@ namespace Cachet_Monitor
                         {
                             try
                             {
+                                componentStatus = ComponentStatus.PerformanceIssues;
                                 await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
                                 {
-                                    Status = ComponentStatus.PerformanceIssues,
+                                    Status = componentStatus,
                                 });
                                 Log.Debug("IPMonitorCheck", "Sent to Cachet successfully");
                             }
@@ -179,9 +185,10 @@ namespace Cachet_Monitor
                             {
                                 try
                                 {
+                                    componentStatus = ComponentStatus.PartialOutage;
                                     await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
                                     {
-                                        Status = ComponentStatus.PartialOutage,
+                                        Status = componentStatus,
                                     });
                                     Log.Debug("IPMonitorCheck", "Sent to Cachet successfully");
                                 }
@@ -194,9 +201,10 @@ namespace Cachet_Monitor
                             {
                                 try
                                 {
+                                    componentStatus = ComponentStatus.MajorOutage;
                                     await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
                                     {
-                                        Status = ComponentStatus.MajorOutage,
+                                        Status = componentStatus,
                                     });
                                     Log.Debug("IPMonitorCheck", "Sent to Cachet successfully");
                                 }
@@ -226,9 +234,10 @@ namespace Cachet_Monitor
                             {
                                 try
                                 {
+                                    componentStatus = ComponentStatus.Operational;
                                     await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
                                     {
-                                        Status = ComponentStatus.Operational,
+                                        Status = componentStatus,
                                     });
                                     Log.Debug("WebMonitorCheck", "Sent to Cachet successfully");
                                 }
@@ -241,9 +250,10 @@ namespace Cachet_Monitor
                             {
                                 try
                                 {
+                                    componentStatus = ComponentStatus.PartialOutage;
                                     await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
                                     {
-                                        Status = ComponentStatus.PartialOutage,
+                                        Status = componentStatus,
                                     });
                                     Log.Debug("WebMonitorCheck", "Sent to Cachet successfully");
                                 }
@@ -269,9 +279,10 @@ namespace Cachet_Monitor
                                     {
                                         try
                                         {
+                                            componentStatus = ComponentStatus.Operational;
                                             await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
                                             {
-                                                Status = ComponentStatus.Operational,
+                                                Status = componentStatus,
                                             });
                                             Log.Debug("WebMonitorCheck", "Sent to Cachet successfully");
                                         }
@@ -288,9 +299,10 @@ namespace Cachet_Monitor
                                 {
                                     try
                                     {
+                                        componentStatus = ComponentStatus.PerformanceIssues;
                                         await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
                                         {
-                                            Status = ComponentStatus.PerformanceIssues,
+                                            Status = componentStatus,
                                         });
                                         Log.Debug("WebMonitorCheck", "Sent to Cachet successfully");
                                     }
@@ -303,9 +315,10 @@ namespace Cachet_Monitor
                                 {
                                     try
                                     {
+                                        componentStatus = ComponentStatus.MajorOutage;
                                         await Cachet.UpdateComponentAsync(monitor.ComponentId, new PutComponent
                                         {
-                                            Status = ComponentStatus.MajorOutage,
+                                            Status = componentStatus,
                                         });
                                         Log.Debug("WebMonitorCheck", "Sent to Cachet successfully");
                                     }
